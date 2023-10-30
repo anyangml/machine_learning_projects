@@ -6,7 +6,7 @@
 <details close>
     <summary>What is machine learning (ML)?</summary>
 
-As the name implies, we allow the machine (or the computer) to learn. **Learn from whom?** The machine learns from a large amount of data provided by us. **What is the goal of learning?** The machine learns some patterns or rules from the data. And in return, it gives some insights into additional data in the same form. In other words, the machine tries to propose a hypothesis, which describes the behavior of the entire dataset. When adding new cases to the dataset, the machine can predict the behavior of these cases using the hypothesis. **How do we know if the hypothesis is valid?** A quantitative method is needed to assess the performance of the hypothesis. Intuitively, we can quantify the difference between the predicted behavior and the true behavior. This is known as the <span style="color:red">*Cost Function*</span>. **How do we optimize the hypothesis if the performance is poor?** We systematically update the hypothesis to minimize the cost function using a mathematical approach called <span style="color:red">*Gradient Descent*</span>.
+As the name implies, we allow the machine (or the computer) to learn. **Learn from what?** The machine learns from a large amount of data provided by us. **What is the goal of learning?** The machine learns some patterns or rules from the data (_the probability density of a distribution_). And in return, it gives some insights into additional data in the same distribution. In other words, the machine tries to propose a hypothesis (_try to depict the distribution_), which describes the behavior of the entire dataset (_the population_). Given a new data point, the machine can predict the behavior of these cases using the hypothesis. **How do we know if the hypothesis is valid?** A quantitative method is needed to assess the performance of the hypothesis. Intuitively, we can quantify the difference between the predicted behavior and the true behavior. This is known as the <span style="color:red">*Cost Function*</span>. **How do we optimize the hypothesis if the performance is poor?** We systematically update the hypothesis (_the parameters used to describe the distribution_) to minimize the cost function using a mathematical approach called <span style="color:red">*Gradient Descent*</span>.
 
 __A formal definition of ML__: a computer program is said to learn from experience E with respect to some class of tasks T and performance measure P, if its performance at tasks in T, as measured by P, improves with experience E.
 
@@ -131,7 +131,7 @@ y_hat = X * w + b
 mse = sum((y_hat - y)**2)/len(X)
 print('MSE of initial model: {}'.format(mse))
 
-#Gradient descent, update (w,b)
+#Gradient descent, update (w,b), using learning rate 0.00005 and 0.002
 w = w - 0.00005 * (-2/len(X) * sum((y - y_hat) * X))
 b = b - 0.002 * (-2/len(X) * sum(y - y_hat))
 
@@ -394,7 +394,7 @@ print('Cost of initial model: {}'.format(cost[0]))
 #How about 50 steps:
 loss = [0.47441666,0.40120507]
 for i in range(48):
-    w = w - 1 * (-1/len(X) * sum((y - y_hat) * X))#0.3 is the learning rate for w
+    w = w - 1 * (-1/len(X) * sum((y - y_hat) * X))# 1 is the learning rate for w
     b = b - 1 * (-1/len(X) * sum(y - y_hat))
     y_hat = sigmoid(X * w + b) 
     cost = - sum(y * np.log(y_hat) + (1 - y) * np.log(1 - y_hat))/len(X)
