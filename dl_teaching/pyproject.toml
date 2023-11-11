@@ -1,0 +1,16 @@
+[tool.poetry]
+name = "dl-teaching"
+version = "0.1.0"
+description = ""
+authors = ["anyangml <anyangpeng.ca@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "~3.10"
+torch = "^2.1.0"
+numpy = "^1.26.1"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
