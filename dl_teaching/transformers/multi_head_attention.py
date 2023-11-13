@@ -175,7 +175,7 @@ class MultiHeadAttention(nn.Module):
         padding_mask    :   Optional[torch.BoolTensor]
             padding token flag of shape (batch_size, seq_length).
         future_mask    :   Optional[torch.BoolTensor]
-            decoder self-attention to avoid any token i attending to a token >i
+            decoder self-attention to avoid any token i attending to a token >i, shape(seq_length, seq_length).
         Returns:
         ------
         masked_attn_weights     :    torch.Tensor
@@ -183,6 +183,8 @@ class MultiHeadAttention(nn.Module):
         """
         if padding_mask is not None:
             masked_attn_weights = attn_weights.masked_fill(
+                # the padding mask has shape (batch_size, seq_length)
+                # need to add two more dimensions to match masked_attn_weights
                 padding_mask[:, None, None, :] == 0, float("-inf")
             )
         if future_mask is not None:
