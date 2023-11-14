@@ -203,7 +203,7 @@ class BERT(nn.Module):
         num_layers: int,
         dropout_p: float,
         ff_ratio: int,
-    ):
+    ) -> None:
         """
         Parameters:
         ----------
@@ -232,12 +232,19 @@ class BERT(nn.Module):
                 for _ in range(num_layers)
             ]
         )
-        self.layer_norm = nn.LayerNorm(embd_dim)
-        self.fc = nn.Linear(embd_dim, vocab_size)
+        self.activ = nn.Tanh()
+        self.norm = nn.LayerNorm(embd_dim)
+        self.classifier = nn.Linear(embd_dim, 2)
+        self.softmax = nn.LogSoftmax(dim=-1)
+        self.fc = nn.Linear(embd_dim, embd_dim)
+        embed_weight = self.embedding.word_embd.weight
+        vocab_size, embd_dim = embed_weight.size()
+        self.decoder = nn.Linear(embd_dim, vocab_size, bias=False)
+        self.decoder.weight = embed_weight
         self.dropout = nn.Dropout(dropout_p)
         self.apply(self._init_weight)
 
-    def _init_weight(self, module):
+    def _init_weight(self, module) -> None:
         if isinstance(module, (nn.Linear, nn.Embedding)):
             module.weight.data.normal_(mean=0.0, std=0.02)
         
@@ -251,4 +258,11 @@ class BERT(nn.Module):
         X = self.dropout(self.embedding(X, seg))
         for block in self.bert_blocks:
             X = block.forward(X, mask)
-        return X
+        
+        # isNext prediction.
+        h_pooled = self.activ(self.fc(X[:, 0])) # [batch_size, embd_dim]
+        logits_clsf = self.classifier(h_pooled) # [batch_size, 2]
+
+        # masked token prediction.
+        logits_lm = self.softmax(self.decoder(X))
+        return logits_lm, logits_clsf
