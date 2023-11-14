@@ -49,7 +49,7 @@ class BertEmbedding(nn.Module):
             The combined embedding after layer normalization of shape (batch_size, sequence_length, embd_dim).
         """
         seq_len = X.shape[1]
-        pos = torch.arange(seq_len).unsqueeze(0).expand_as(X)
+        pos = torch.arange(seq_len).unsqueeze(0).expand_as(X).to('cuda')
         embd_sum = self.word_embd(X) + self.position_embd(pos) + self.segment_embd(seg)
         norm = self.norm(embd_sum)
         return norm
@@ -125,10 +125,8 @@ class MultiHeadAttention(nn.Module):
         attn_weight = attn_weight / ((q.size()[-1]) ** (1 / 2))
 
         if mask is not None:
-            attn_weight = attn_weight.masked_fill(mask[:,None,None,:] == 0, float("-inf"))
-
+            attn_weight = attn_weight.masked_fill(mask[:,None,:,:], float("-inf"))
         attn_weight = torch.softmax(attn_weight, dim=-1)
-
         # (batch_size, num_heads, sequence_length, sequence_length) to
         # (batch_size, sequence_length, num_heads * qkv_dim)
         out = torch.einsum("bhqv,bvhd->bqhd", [attn_weight, v]).reshape(
@@ -197,12 +195,12 @@ class BERT(nn.Module):
         self,
         vocab_size: int,
         max_len: int,
-        embd_dim: int,
-        num_seg: int,
-        num_heads: int,
-        num_layers: int,
-        dropout_p: float,
-        ff_ratio: int,
+        embd_dim: int = 768,
+        num_seg: int = 2,
+        num_heads: int = 12,
+        num_layers: int = 12,
+        dropout_p: float = 0.1,
+        ff_ratio: int = 4,
     ) -> None:
         """
         Parameters:
