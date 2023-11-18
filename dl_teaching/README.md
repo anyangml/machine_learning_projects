@@ -46,10 +46,22 @@
 
 #
 
-## T5
+## Traditional Transformer Model
 
 ### Structure
+- The original transformer model uses a fix sinusoidal embedding.
+- The model is an encoder-decoder model, which means it has both encodel blocks and decoder blocks.
+- In the decoder, there is a maksed self-attention layer and a cross encoder-decoder attention layer.
 
+<div style="text-align:center">
+<img src=https://github.com/anyangml/machine_learning_projects/assets/137014849/f4734a5a-f1ea-4c0a-b87f-8971da85ad98 width=300 height=390 />
+</div>
+
+### Training
+- The encoder-decoder transformer is trained on seq-to-seq transformation tasks like English-to-French translation.
+- The encoder and decoder will have two different token embeddings for each language vocabulary.
+- The encoding is done in parallel through matrix multiplication, while the decoding is done in sequence.
+- The decoding starts with a special token, usually __[EOS]__, and the output of self attention layer is used in cross attention with the encoder output. The final decoder output is used as input for the next cycle of self attention.
 ### HuggingFace
 
 #
@@ -89,4 +101,19 @@
 | **Nadam**           | Nesterov-accelerated version of Adam                   | - Incorporates Nesterov momentum into Adam           | Moderate                 | Deep learning tasks, optimization     |
 | **AdamW**           | Adam with weight decay regularization                  | - Adds weight decay to the Adam optimizer            | Moderate                 | General optimization, deep learning  |
 
+</details>
+
+
+<details>
+<summary><b>DeepSpeed</b></summary>
+</details>
+
+
+<details>
+<summary><b>Retrival Agumented Generation</b></summary>
+reranker
+</details>
+<details>
+<summary><b>Longformer</b></summary>
+sliding window attention...
 </details>
