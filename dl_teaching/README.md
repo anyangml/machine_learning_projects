@@ -19,7 +19,7 @@
 - The __NSP__ task is done by running classification on the output embedding of the special token __[CLS]__.
 ### HuggingFace
 
-<details>
+<details close>
 <summary>References</summary> 
 - https://neptune.ai/blog/how-to-code-bert-using-pytorch-tutorial
 - https://github.com/ShivamRajSharma/Transformer-Architectures-From-Scratch/blob/master/BERT.py
@@ -68,7 +68,7 @@
 
 # Appendix
 ## 
-<details>
+<details close>
 <summary><b>Activation Functions</b></summary>
 | Activation Function         | Formula                                               | Range             | Derivative                                                          | Pros                                                         | Cons                                                                      |
 |-----------------------------|-------------------------------------------------------|-------------------|---------------------------------------------------------------------|--------------------------------------------------------------|---------------------------------------------------------------------------|
@@ -85,7 +85,7 @@
 </details>
 
 
-<details>
+<details close>
 <summary><b>Optimizers</b></summary>
 
 
@@ -104,16 +104,32 @@
 </details>
 
 
-<details>
+<details close>
 <summary><b>DeepSpeed</b></summary>
+
+  - Data Parallelism: The exact same model is replicated over multiple GPUs, and different batches of data are sent to these GPUs in parallel. The parameters across all GPUs are synchronized.
+- Model Parallelism: Large models that cannot fit into one GPU are split into blocks, the same batch of data go through these blocks sequentially. The GPU unitlization efficiency is low.
+  
+<div style="text-align:center">
+<img src=https://github.com/anyangml/machine_learning_projects/assets/137014849/30535c6b-cfdd-49b5-af9a-9c45953840f3 width=3300 height=120 />
+</div>
+
+- Pipeline Parallelism: Similar to model parallelism, however, the dataset is further split into microbatches, so that the GPU will have less idel time. When the first model block finishes processing the first microbatch, it starts working on the second microbatch, while the intermediate results of the first microbatch is passed to the second model block.
+
+<div style="text-align:center">
+<img src=https://github.com/anyangml/machine_learning_projects/assets/137014849/61878a04-9d1a-45d9-9603-b0fe234e0b07 width=3300 height=120 />
+</div>
+
+- ZeRO: Zero redundant optimizer partitions optimizer stats, parameters and gradients arcoss all GPUs, without replicating the model.
 </details>
 
 
-<details>
+<details close>
 <summary><b>Retrival Agumented Generation</b></summary>
 reranker
 </details>
-<details>
-<summary><b>Longformer</b></summary>
-sliding window attention...
+<details close>
+<summary><b>Context Window</b></summary>
+- Longformer: sliding window attention...
+- Fastattention
 </details>
