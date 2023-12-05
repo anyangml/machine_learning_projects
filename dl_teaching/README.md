@@ -50,7 +50,7 @@
 
 ### Structure
 - The original transformer model uses a fix sinusoidal embedding.
-- The model is an encoder-decoder model, which means it has both encodel blocks and decoder blocks.
+- The model is an encoder-decoder model, which means it has both encoder blocks and decoder blocks.
 - In the decoder, there is a maksed self-attention layer and a cross encoder-decoder attention layer.
 
 <div style="text-align:center">
@@ -60,7 +60,7 @@
 ### Training
 - The encoder-decoder transformer is trained on seq-to-seq transformation tasks like English-to-French translation.
 - The encoder and decoder will have two different token embeddings for each language vocabulary.
-- The encoding is done in parallel through matrix multiplication, while the decoding is done in sequence.
+- The encoding is done in parallel through matrix multiplication, while the decoding is done in sequence during inference.
 - The decoding starts with a special token, usually __[EOS]__, and the output of self attention layer is used in cross attention with the encoder output. The final decoder output is used as input for the next cycle of self attention.
 ### HuggingFace
 
@@ -130,6 +130,13 @@ reranker
 </details>
 <details close>
 <summary><b>Context Window</b></summary>
-- Longformer: sliding window attention...
-- Fastattention
+
+- Longformer: sliding window attention scales linearly with sequence length. Instead pairwise attention across all tokens in the sequence, sliding window only focus on local context similar to convolution in CNN. This allows larger context window for transformer models.
+  
+<div style="text-align:center">
+<img src=https://github.com/anyangml/machine_learning_projects/assets/137014849/3c61808b-cccb-4208-8b80-e47822675ea1 width=3300 height=100 />
+</div>
+
+- Flash attention
+- https://blog.gopenai.com/how-to-speed-up-llms-and-use-100k-context-window-all-tricks-in-one-place-ffd40577b4c
 </details>
