@@ -42,10 +42,10 @@ class GPT(nn.Module):
         
         for block in self.transformer:
             x = block(x)
-        print(x.shape)
         x = self.ln(x)
+
+        # (B, L, D) --> (B, L, V)
         x = self.ff(x)
-        print(x.shape)
         return x
 
 class TransformerBlock(nn.Module):
