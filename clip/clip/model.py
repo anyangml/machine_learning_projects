@@ -6,7 +6,7 @@ import numpy as np
 
 class CLIP(nn.Module):
     def __init__(self, txt_encoder, img_encoder, embd_dim, temperature):
-        super(CLIP, self).__init__()
+        super().__init__()
 
         assert 0 <= temperature <= 1, "temperature must be in range [0,1]"
         self.temperature = temperature
