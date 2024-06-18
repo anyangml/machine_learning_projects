@@ -34,7 +34,7 @@ class ViT(nn.Module):
         self.psize = config.patch_size
         assert (
             self.h % self.psize == 0 and self.w % self.psize == 0
-        ), "image height and weight must be divisible by patch size"
+        ), "Image dimensions must be divisible by the patch size. Please check the configuration."
         self.n_patch = (self.h * self.w) // (self.psize**2)
         self.rearrange = Rearrange(
             "b c (h p1) (w p2) -> b (h w) (p1 p2 c)", p1=self.psize, p2=self.psize
