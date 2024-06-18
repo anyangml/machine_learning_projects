@@ -26,21 +26,26 @@ class GPT(nn.Module):
         self.ln = nn.LayerNorm(config.n_embd)
         self.ff = nn.Linear(config.n_embd, config.vocab_size, bias=False)
 
-        self.transformer = nn.ModuleList([TransformerBlock(config)] for _ in range(config.n_layer))
+        self.transformer = nn.ModuleList([TransformerBlock(config) for _ in range(config.n_layer)])
         self.token_embd.weight = self.ff.weight
 
 
     def forward(self, x):
         seq_len = x.size(1)
+
+        # (B, L) --> (B, L, D)
+        token_embd = self.token_embd(x)
         pos = torch.arange(seq_len, dtype=torch.long, device=self.config.device).unsqueeze(0)
-        tok_embd = self.token_embd(x)
         pos_embd = self.pos_embd(pos)
-        x = tok_embd + pos_embd
+        x = token_embd + pos_embd
+        
         
         for block in self.transformer:
             x = block(x)
+        print(x.shape)
         x = self.ln(x)
         x = self.ff(x)
+        print(x.shape)
         return x
 
 class TransformerBlock(nn.Module):
