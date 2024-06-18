@@ -4,12 +4,13 @@ from ..constant import DEVICE
 import torch.nn as nn
 from torch.nn import functional as F
 
+
 @dataclass
 class GPTConfig:
     device: torch.device = field(default=DEVICE)
     vocab_size: int = field(
         default=65536, metadata={"help": "define size of vocabulary"}
-    ) # 2**16
+    )  # 2**16
     seq_len: int = field(default=1024, metadata={"help": "sequence length"})
     n_layer: int = field(default=12, metadata={"help": "number of layers"})
     n_head: int = field(default=8, metadata={"help": "number of heads"})
@@ -19,7 +20,7 @@ class GPTConfig:
 class GPT(nn.Module):
     """
     Use GPT as a encoder to generate text embeddings. Similar to ViT, where the information
-    is accumulated into the cls_token, here the EOT (end of sequence token) carries all the 
+    is accumulated into the cls_token, here the EOT (end of sequence token) carries all the
     information, due to the causal attention.
     """
 
@@ -35,9 +36,10 @@ class GPT(nn.Module):
         self.ln = nn.LayerNorm(config.n_embd)
         self.ff = nn.Linear(config.n_embd, config.vocab_size, bias=False)
 
-        self.transformer = nn.ModuleList([TransformerBlock(config) for _ in range(config.n_layer)])
+        self.transformer = nn.ModuleList(
+            [TransformerBlock(config) for _ in range(config.n_layer)]
+        )
         self.token_embd.weight = self.ff.weight
-
 
     def forward(self, x):
         seq_len = x.size(1)
@@ -47,11 +49,12 @@ class GPT(nn.Module):
 
         # (B, L) --> (B, L, D)
         token_embd = self.token_embd(x)
-        pos = torch.arange(seq_len, dtype=torch.long, device=self.config.device).unsqueeze(0)
+        pos = torch.arange(
+            seq_len, dtype=torch.long, device=self.config.device
+        ).unsqueeze(0)
         pos_embd = self.pos_embd(pos)
         x = token_embd + pos_embd
-        
-        
+
         for block in self.transformer:
             x = block(x)
         x = self.ln(x)
@@ -63,6 +66,7 @@ class GPT(nn.Module):
         x = x[eos_mask]
 
         return x
+
 
 class TransformerBlock(nn.Module):
     def __init__(self, config: GPTConfig):
@@ -76,7 +80,8 @@ class TransformerBlock(nn.Module):
         x = x + self.attn(self.ln1(x))
         x = x + self.ff(self.ln2(x))
         return x
-    
+
+
 class AttentionBlock(nn.Module):
     def __init__(self, config: GPTConfig):
         super().__init__()
@@ -88,10 +93,12 @@ class AttentionBlock(nn.Module):
         self.w_out = nn.Linear(self.n_embd, self.n_embd)
 
     def forward(self, x):
-        B, L, D = x.shape # batch size, sequence length, embedding dimension
+        B, L, D = x.shape  # batch size, sequence length, embedding dimension
         qkv = self.w_qkv(x)
         q, k, v = qkv.chunk(3, dim=-1)
-        q = q.view(B, L, self.n_head, D // self.n_head).transpose(1, 2) # (B, nh, L, hs)
+        q = q.view(B, L, self.n_head, D // self.n_head).transpose(
+            1, 2
+        )  # (B, nh, L, hs)
         k = k.view(B, L, self.n_head, D // self.n_head).transpose(1, 2)
         v = v.view(B, L, self.n_head, D // self.n_head).transpose(1, 2)
         out = F.scaled_dot_product_attention(q, k, v, is_causal=True)

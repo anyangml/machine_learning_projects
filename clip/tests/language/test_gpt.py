@@ -2,6 +2,7 @@ from clip.languange.gpt import GPT
 from clip.languange.gpt import GPTConfig
 import torch
 
+
 def test_GPT_forward_shape():
     config = GPTConfig(device=torch.device("cpu"))
     gpt = GPT(config)
@@ -12,4 +13,3 @@ def test_GPT_forward_shape():
 
     ecoded = gpt(dummy_txts)
     assert ecoded.shape == (2, config.vocab_size)
-    
