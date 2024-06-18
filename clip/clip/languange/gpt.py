@@ -8,8 +8,8 @@ from torch.nn import functional as F
 class GPTConfig:
     device: torch.device = field(default=DEVICE)
     vocab_size: int = field(
-        default=32768, metadata={"help": "define size of vocabulary"}
-    ) # 2**15
+        default=65536, metadata={"help": "define size of vocabulary"}
+    ) # 2**16
     seq_len: int = field(default=1024, metadata={"help": "sequence length"})
     n_layer: int = field(default=12, metadata={"help": "number of layers"})
     n_head: int = field(default=8, metadata={"help": "number of heads"})
@@ -17,6 +17,15 @@ class GPTConfig:
 
 
 class GPT(nn.Module):
+    """
+    Use GPT as a encoder to generate text embeddings. Similar to ViT, where the information
+    is accumulated into the cls_token, here the EOT (end of sequence token) carries all the 
+    information, due to the causal attention.
+    """
+
+    # the end of sequence token id for gpt2
+    EOT = 50256
+
     def __init__(self, config: GPTConfig):
         super().__init__()
         self.config = config
@@ -33,6 +42,9 @@ class GPT(nn.Module):
     def forward(self, x):
         seq_len = x.size(1)
 
+        # mark the EOS token
+        eos_mask = x == GPT.EOT
+
         # (B, L) --> (B, L, D)
         token_embd = self.token_embd(x)
         pos = torch.arange(seq_len, dtype=torch.long, device=self.config.device).unsqueeze(0)
@@ -46,6 +58,10 @@ class GPT(nn.Module):
 
         # (B, L, D) --> (B, L, V)
         x = self.ff(x)
+
+        # getting the EOS
+        x = x[eos_mask]
+
         return x
 
 class TransformerBlock(nn.Module):
