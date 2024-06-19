@@ -22,11 +22,11 @@ jobs:
         run: |
             curl -sSL https://install.python-poetry.org | python - --version 1.2.2
             poetry install
-        working-directory: ~/clip
+        working-directory: clip
 
       - name: Run tests
         run: poetry run pytest --cov app ${{ env.CODECOV_ATS_TESTS }}
-        working-directory: ~/clip
+        working-directory: clip
         
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v4
