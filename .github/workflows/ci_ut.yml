@@ -28,12 +28,6 @@ jobs:
         run: poetry run pytest --cov=clip --cov-report=xml:clip/coverage.xml
         working-directory: clip
         
-      - name: List coverage files
-        run: |
-          echo "Listing coverage files:"
-          ls -R clip
-        working-directory: clip
-        
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v4
         with:
