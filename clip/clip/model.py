@@ -30,6 +30,6 @@ class CLIP(nn.Module):
         embd_image = F.normalize(self.img_proj(encoded_image), dim=1)  # (B, D)
 
         # scaled pairwise cosine similarities (B, B)
-        logits = torch.mm(embd_text, embd_image.T) * torch.exp(self.temperature)
+        logits = torch.mm(embd_text, embd_image.T) * np.exp(self.temperature)
 
         return logits, logits.T  # text, image
