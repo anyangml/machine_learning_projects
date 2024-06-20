@@ -69,7 +69,7 @@ def mock_tokenize(text):
     else:
         # padding after EOS token for batch process
         tokens += [tokenizer._special_tokens["<|endoftext|>"]]
-        tokens += [-1] * (
+        tokens += [0] * (
             MAX_SEQ_LENGTH - len(tokens)
         )
 
