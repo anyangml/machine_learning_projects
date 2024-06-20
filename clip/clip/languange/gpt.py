@@ -1,8 +1,9 @@
 import torch
 from dataclasses import dataclass, field
-from ..constant import DEVICE
+from clip.constant import DEVICE
 import torch.nn as nn
 from torch.nn import functional as F
+from clip.constant import MAX_SEQ_LENGTH
 
 
 @dataclass
@@ -11,7 +12,7 @@ class GPTConfig:
     vocab_size: int = field(
         default=65536, metadata={"help": "define size of vocabulary"}
     )  # 2**16
-    seq_len: int = field(default=1024, metadata={"help": "sequence length"})
+    seq_len: int = field(default=MAX_SEQ_LENGTH, metadata={"help": "sequence length"})
     n_layer: int = field(default=12, metadata={"help": "number of layers"})
     n_head: int = field(default=8, metadata={"help": "number of heads"})
     n_embd: int = field(default=768, metadata={"help": "embedding dimension"})
