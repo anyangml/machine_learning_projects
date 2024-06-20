@@ -1,10 +1,10 @@
 import torch
 from dataclasses import dataclass, field
-from ..constant import DEVICE
+from clip.constant import DEVICE
 import torch.nn as nn
 from torch.nn import functional as F
 from einops.layers.torch import Rearrange
-from ..constant import IMAGE_CHANNEL, IMAGE_HEIGHT, IMAGE_WIDTH
+from clip.constant import IMAGE_CHANNEL, IMAGE_HEIGHT, IMAGE_WIDTH
 
 
 @dataclass
