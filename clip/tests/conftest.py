@@ -7,9 +7,10 @@ import tiktoken
 import tempfile
 import shutil
 import os
+import torch
 import numpy as np
 from PIL import Image
-from clip.constant import IMAGE_HEIGHT, IMAGE_WIDTH
+from clip.constant import IMAGE_HEIGHT, IMAGE_WIDTH, MAX_SEQ_LENGTH
 
 
 @pytest.fixture
@@ -60,4 +61,16 @@ def mock_image_data():
 
 
 def mock_tokenize(text):
-    return tiktoken.get_encoding("gpt2").encode(text) + [50256]
+    tokenizer = tiktoken.get_encoding("gpt2")
+    tokens = tokenizer.encode(text)
+    if len(tokens) >= MAX_SEQ_LENGTH:
+        tokens = tokens[: MAX_SEQ_LENGTH - 1]
+        tokens += [tokenizer._special_tokens["<|endoftext|>"]]
+    else:
+        # padding after EOS token for batch process
+        tokens += [tokenizer._special_tokens["<|endoftext|>"]]
+        tokens += [-1] * (
+            MAX_SEQ_LENGTH - len(tokens)
+        )
+
+    return torch.tensor(tokens,dtype=torch.int32)

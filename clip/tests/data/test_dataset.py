@@ -14,9 +14,10 @@ def test_len(dataset):
 
 
 def test_getitem(dataset):
-    img, txt = dataset[0]
+    txt, img = dataset[0]
 
     assert isinstance(img, torch.Tensor)
-    assert isinstance(txt, list)
+    assert isinstance(txt, torch.Tensor)
     assert img.shape == (3, IMAGE_HEIGHT, IMAGE_WIDTH)
-    assert txt[-1] == 50256
+    assert txt[-1] == 0 # test padding
+    assert 50256 in txt # test EOS token
