@@ -52,6 +52,16 @@ class ViT(nn.Module):
 
         self.mlp_head = nn.Linear(config.n_embd, config.out_dim)
 
+        self.apply(self._init_weights)
+
+    def _init_weights(self, module):
+        if isinstance(module, nn.Linear):            
+            torch.nn.init.normal_(module.weight, mean=0.0, std=0.02)
+            if module.bias is not None:
+                torch.nn.init.zeros_(module.bias)
+        elif isinstance(module, nn.Embedding):
+            torch.nn.init.normal_(module.weight, mean=0.0, std=0.02)
+
     def forward(self, x):
         B, C, H, W = x.shape
 
