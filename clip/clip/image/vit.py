@@ -39,18 +39,22 @@ class ViT(nn.Module):
         self.rearrange = Rearrange(
             "b c (h p1) (w p2) -> b (h w) (p1 p2 c)", p1=self.psize, p2=self.psize
         )
-        self.pos_embd = nn.Embedding(self.n_patch + 1, self.config.n_embd)
+        self.pos_embd = nn.Embedding(self.n_patch + 1, config.n_embd)
         self.flatten = nn.Linear(
-            self.c * self.psize**2, self.config.n_embd, bias=False
+            self.c * self.psize**2, config.n_embd, bias=False
         )
-        self.cls_token = nn.Parameter(torch.zeros(1, self.config.n_embd))
+        self.cls_token = nn.Parameter(torch.randn(1, config.n_embd))
 
-        self.ln = nn.LayerNorm(self.config.n_embd)
+        self.ln = nn.LayerNorm(config.n_embd)
         self.transformer = nn.ModuleList(
             [TransformerBlock(config) for _ in range(config.n_layer)]
         )
 
-        self.mlp_head = nn.Linear(config.n_embd, config.out_dim)
+        self.mlp_head = nn.Sequential(
+            nn.LayerNorm(config.n_embd),
+            nn.Linear(config.n_embd, config.mlp_size),
+            nn.Linear(config.mlp_size, config.out_dim)
+        )
 
         self.apply(self._init_weights)
 
