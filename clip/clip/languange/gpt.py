@@ -40,7 +40,16 @@ class GPT(nn.Module):
             [TransformerBlock(config) for _ in range(config.n_layer)]
         )
         self.token_embd.weight = self.ff.weight
+        self.apply(self._init_weights)
 
+    def _init_weights(self, module):
+        if isinstance(module, nn.Linear):            
+            torch.nn.init.normal_(module.weight, mean=0.0, std=0.02)
+            if module.bias is not None:
+                torch.nn.init.zeros_(module.bias)
+        elif isinstance(module, nn.Embedding):
+            torch.nn.init.normal_(module.weight, mean=0.0, std=0.02)
+            
     def forward(self, x):
         seq_len = x.size(1)
 
