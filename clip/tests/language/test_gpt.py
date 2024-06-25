@@ -11,5 +11,5 @@ def test_GPT_forward_shape():
     dummy_txts[0, 152] = 50256
     dummy_txts[1, 928] = 50256
 
-    ecoded = gpt(dummy_txts)
-    assert ecoded.shape == (2, config.vocab_size)
+    encoded = gpt(dummy_txts)
+    assert encoded.shape == (2, config.vocab_size)
