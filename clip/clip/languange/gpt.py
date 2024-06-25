@@ -14,8 +14,10 @@ class GPTConfig:
     )  # 2**16
     seq_len: int = field(default=MAX_SEQ_LENGTH, metadata={"help": "sequence length"})
     n_layer: int = field(default=12, metadata={"help": "number of layers"})
+    mlp_size: int = field(default=2048, metadata={"help": "size of mlp"})
     n_head: int = field(default=8, metadata={"help": "number of heads"})
     n_embd: int = field(default=768, metadata={"help": "embedding dimension"})
+    out_dim: int = field(default=768, metadata={"help": "output dimension"})
 
 
 class GPT(nn.Module):
@@ -35,12 +37,11 @@ class GPT(nn.Module):
         self.token_embd = nn.Embedding(config.vocab_size, config.n_embd)
         self.pos_embd = nn.Embedding(config.seq_len, config.n_embd)
         self.ln = nn.LayerNorm(config.n_embd)
-        self.ff = nn.Linear(config.n_embd, config.vocab_size, bias=False)
+        self.ff = nn.Linear(config.n_embd, config.out_dim)
 
         self.transformer = nn.ModuleList(
             [TransformerBlock(config) for _ in range(config.n_layer)]
         )
-        self.token_embd.weight = self.ff.weight
         self.apply(self._init_weights)
 
     def _init_weights(self, module):
@@ -69,10 +70,10 @@ class GPT(nn.Module):
             x = block(x)
         x = self.ln(x)
 
-        # (B, L, D) --> (B, L, V)
+        # (B, L, D) --> (B, L, out_dim)
         x = self.ff(x)
 
-        # getting the EOS
+        # getting the EOS (B, out_dim)
         x = x[eos_mask]
 
         return x
@@ -84,7 +85,11 @@ class TransformerBlock(nn.Module):
         self.ln1 = nn.LayerNorm(config.n_embd)
         self.ln2 = nn.LayerNorm(config.n_embd)
         self.attn = AttentionBlock(config)
-        self.ff = nn.Linear(config.n_embd, config.n_embd, bias=False)
+        self.ff = nn.Sequential(
+            nn.Linear(config.n_embd, config.mlp_size),
+            nn.GELU(),
+            nn.Linear(config.mlp_size, config.n_embd),
+        )
 
     def forward(self, x):
         x = x + self.attn(self.ln1(x))
