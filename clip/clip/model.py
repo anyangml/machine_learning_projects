@@ -2,7 +2,7 @@ import torch
 from torch import nn
 import torch.nn.functional as F
 import numpy as np
-
+from clip.loss import CLIPLoss
 
 class CLIP(nn.Module):
     def __init__(self, txt_encoder, img_encoder, embd_dim, temperature):
@@ -34,3 +34,15 @@ class CLIP(nn.Module):
         logits = torch.mm(embd_text, embd_image.T) * torch.clamp(torch.exp(self.temperature), min=0.01, max=100.0)
 
         return logits, logits.T  # text, image
+
+class CLIPWrapper(nn.Module):
+    def __init__(self, model, loss_fn):
+        super().__init__()
+        self.model = model
+        self.loss_fn = loss_fn
+
+    def forward(self, text, image):
+        txt_log, img_log = self.model(text, image)
+        loss = self.loss_fn(txt_log, img_log)
+
+        return loss
