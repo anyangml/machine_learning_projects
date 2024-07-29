@@ -6,13 +6,14 @@ from pathlib import Path
 from torch.optim import Adam
 
 import torch
+DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
+
 class Trainer:
     def __init__(self) -> None:
-        torch.manual_seed(42)
-        self.device = "cuda" if torch.cuda.is_available() else "cpu"
-        self.model = Diffusion(UNetWithTime()).to(self.device)
+        torch.manual_seed(412)
+        self.model = Diffusion(UNetWithTime()).to(DEVICE)
         dataset = SwissRollDataset(list(Path(f"{Path(__file__).parents[0]}/data/dummy_data").rglob("*.png")))
-        self.dataloader = DataLoader(dataset, batch_size=2, shuffle=False)
+        self.dataloader = DataLoader(dataset, batch_size=4, shuffle=True)
         self.optimizer = Adam(self.model.parameters(), lr=2e-4)  
 
     def train(self):
@@ -21,10 +22,9 @@ class Trainer:
             for batch in self.dataloader:
                 self.optimizer.zero_grad()
                 images = batch
-                images = images.to(self.device)
+                images = images.to(DEVICE)
 
                 loss= self.model(images)
-                print(loss)
                 loss.backward()
                 self.optimizer.step()
                 # if self.config["wandb"] :

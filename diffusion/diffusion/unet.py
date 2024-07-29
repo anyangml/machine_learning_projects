@@ -1,6 +1,7 @@
 import torch.nn as nn
 import torch
 import torch.nn.functional as F
+DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 
 ################################################# Vanilla UNet ####################################################
 
@@ -99,8 +100,8 @@ class SinusoidalPosEmb(nn.Module):
     def forward(self, x):
         """given (B, 1), return (B, dim)"""
         half_dim = self.dim // 2
-        emb = torch.log(torch.ones(1) *self.theta) / (half_dim - 1)
-        emb = torch.exp(torch.arange(half_dim) * -emb)
+        emb = torch.log(torch.ones(1,device=DEVICE) *self.theta) / (half_dim - 1)
+        emb = torch.exp(torch.arange(half_dim,device=DEVICE) * -emb)
         emb = x[:, None] * emb[None, :]
         emb = torch.cat((emb.sin(), emb.cos()), dim=-1)
         return emb
