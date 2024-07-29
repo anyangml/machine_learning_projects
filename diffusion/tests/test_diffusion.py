@@ -1,0 +1,9 @@
+from diffusion.diffusion import Diffusion
+from diffusion.unet import UNetWithTime
+import torch
+
+def test_diffusion():
+    model = Diffusion(UNetWithTime())
+    x = torch.randn(2, 1, 572, 572)
+    y = model(x)
+    assert y.shape != x.shape
