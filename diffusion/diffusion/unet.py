@@ -17,7 +17,7 @@ class ConvBlock(nn.Module):
             nn.BatchNorm2d(out_channels),
             nn.GELU()
         )
-
+    
     def forward(self, x):
         return self.double_conv(x)
 
@@ -128,11 +128,12 @@ class ConvBlockWithTime(ConvBlock):
         super().__init__(in_channels, out_channels, kernel_size, stride, padding)
         self.time_embd = nn.Linear(time_dim, in_channels)
         
+        
     def forward(self, x, t=None):
         if t is not None:
             t = self.time_embd(t)
             t = t[:, :, None, None]
-            x += t
+            x = x + t
         return self.double_conv(x)
     
 
@@ -146,7 +147,7 @@ class DownSampleBlockWithTime(DownSampleBlock):
         if t is not None:
             t = self.time_embd(t)
             t = t[:, :, None, None]
-            x += t
+            x = x + t
         return super().forward(x)
     
 
@@ -160,7 +161,7 @@ class UpSampleBlockWithTime(UpSampleBlock):
         if t is not None:
             t = self.time_embd(t)
             t = t[:, :, None, None]
-            x += t
+            x = x + t
         return super().forward(x, enc_feature)
     
 class UNetWithTime(UNet):
@@ -184,6 +185,16 @@ class UNetWithTime(UNet):
             nn.BatchNorm2d(1),
             nn.GELU()
         )
+        self.apply(self._init_weights)
+
+    def _init_weights(self, m):
+        if isinstance(m, nn.BatchNorm2d):
+            nn.init.constant_(m.weight, 1)
+            nn.init.constant_(m.bias, 0)
+        elif isinstance(m, nn.Conv2d) or isinstance(m, nn.ConvTranspose2d) or isinstance(m, nn.Linear):          
+            torch.nn.init.normal_(m.weight, mean=0.0, std=0.02)
+            if m.bias is not None:
+                nn.init.constant_(m.bias, 0)
 
     def forward(self, x, t=None):
         x = self.init_conv(x)
