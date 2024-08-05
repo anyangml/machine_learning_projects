@@ -1,10 +1,15 @@
 from torch.utils.data import Dataset, DataLoader
 from PIL import Image
 from pathlib import Path
-from torchvision.transforms import ToTensor
+from torchvision.transforms import ToTensor, Resize, Compose
+
+transform = Compose(
+   [Resize((512,512),antialias=True),
+    ToTensor()]
+)
 
 class SwissRollDataset(Dataset):
-    def __init__(self, image_paths, transform=ToTensor()):
+    def __init__(self, image_paths, transform=transform):
         self.image_paths = image_paths
         self.transform = transform
 

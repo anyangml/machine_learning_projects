@@ -1,5 +1,5 @@
-from diffusion import Diffusion
-from unet import UNetWithTime
-from data.dataset import SwissRollDataset, DataLoader
+from diffusion.diffusion_wrap import Diffusion
+from diffusion.unet import UNetWithTime, UNet, DownSampleBlock
+from diffusion.data.dataset import SwissRollDataset, DataLoader
 
-__all__ = ["Diffusion","UNetWithTime","SwissRollDataset","DataLoader"]
+__all__ = ["Diffusion","UNetWithTime","UNet","DownSampleBlock","SwissRollDataset","DataLoader"]

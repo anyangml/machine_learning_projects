@@ -113,9 +113,8 @@ class TimeEmbedding(nn.Module):
         super().__init__()
         self.time_mlp = nn.Sequential(
             SinusoidalPosEmb(time_dim),
-            nn.Linear(time_dim, time_dim * 4),
+            nn.Linear(time_dim, time_dim),
             nn.GELU(),
-            nn.Linear(time_dim * 4, time_dim)
         )
 
     def forward(self, t):
@@ -124,9 +123,12 @@ class TimeEmbedding(nn.Module):
 
 class ConvBlockWithTime(ConvBlock):
 
-    def __init__(self, in_channels:int, out_channels:int, kernel_size:int=3, stride:int=1, padding:int=0, time_dim:int=64):
+    def __init__(self, in_channels:int, out_channels:int, kernel_size:int=3, stride:int=1, padding:int=1, time_dim:int=256):
         super().__init__(in_channels, out_channels, kernel_size, stride, padding)
-        self.time_embd = nn.Linear(time_dim, in_channels)
+        self.time_embd = nn.Sequential(
+            nn.Linear(time_dim, in_channels),
+            nn.GELU()
+        )
         
         
     def forward(self, x, t=None):
@@ -139,9 +141,12 @@ class ConvBlockWithTime(ConvBlock):
 
 class DownSampleBlockWithTime(DownSampleBlock):
 
-    def __init__(self, in_channels:int, out_channels:int, kernel_size:int=3, stride:int=1, padding:int=0,  time_dim:int=64):
+    def __init__(self, in_channels:int, out_channels:int, kernel_size:int=3, stride:int=1, padding:int=1,  time_dim:int=256):
         super().__init__(in_channels, out_channels, kernel_size, stride, padding)
-        self.time_embd = nn.Linear(time_dim, in_channels)
+        self.time_embd = nn.Sequential(
+            nn.Linear(time_dim, in_channels),
+            nn.GELU()
+        )
     
     def forward(self, x, t=None):
         if t is not None:
@@ -153,9 +158,12 @@ class DownSampleBlockWithTime(DownSampleBlock):
 
 class UpSampleBlockWithTime(UpSampleBlock):
 
-    def __init__(self, in_channels:int, out_channels:int, kernel_size:int=3, stride:int=1, padding:int=0,  time_dim:int=64):
+    def __init__(self, in_channels:int, out_channels:int, kernel_size:int=3, stride:int=1, padding:int=1,  time_dim:int=64):
         super().__init__(in_channels, out_channels, kernel_size, stride, padding)
-        self.time_embd = nn.Linear(time_dim, in_channels)
+        self.time_embd = nn.Sequential(
+            nn.Linear(time_dim, in_channels),
+            nn.GELU()
+        )
     
     def forward(self, x, enc_feature, t=None):
         if t is not None:
@@ -166,10 +174,14 @@ class UpSampleBlockWithTime(UpSampleBlock):
     
 class UNetWithTime(UNet):
 
-    def __init__(self, init_channels:int=128, time_dim:int=64):
+    def __init__(self, init_channels:int=128, time_dim:int=256):
         super().__init__()
-        self.init_conv = nn.Conv2d(in_channels=1, out_channels=init_channels, kernel_size=1, stride=1, padding=0)
-        self.time_embd =   TimeEmbedding(time_dim)
+        self.init_conv = nn.Sequential(
+            nn.Conv2d(in_channels=1, out_channels=init_channels, kernel_size=1, stride=1, padding=0),
+            nn.BatchNorm2d(init_channels),
+            nn.GELU()
+        )
+        self.time_embd = TimeEmbedding(time_dim)
         self.mlp = nn.Linear(time_dim,init_channels)
         self.conv1 = ConvBlockWithTime(init_channels, 64, time_dim=time_dim)
         self.down1 = DownSampleBlockWithTime(64, 128, time_dim=time_dim)
@@ -200,22 +212,22 @@ class UNetWithTime(UNet):
         x = self.init_conv(x)
         if t is not None:
             t = self.time_embd(t)
-            t_embd = self.mlp(t)[:, :, None, None] #(1, 1, 64)
+            t_embd = self.mlp(t)[:, :, None, None] #(1, 1, 256)
             x = x + t_embd
         x1 = self.conv1(x, t) # (568, 568, 64)
+
         x2 = self.down1(x1, t) # (280, 280, 128)
         x3 = self.down2(x2, t) # (136, 136, 256)
         x4 = self.down3(x3, t) # (64, 64, 512)
         x5 = self.down4(x4, t) # (28, 28, 1024)
-       
         x = self.up1(x5, x4, t) # (52, 52, 512)
         x = self.up2(x, x3, t) # (100, 100, 256)
         x = self.up3(x, x2, t) # (196, 196, 128)
         x = self.up4(x, x1, t) # (388, 388, 64)
         x = self.out(x) #  (388, 388, 1)
-        
-        x = F.interpolate(x, size=(572, 572), mode='bilinear', align_corners=False) #  (572, 572, 1)
 
+
+        
         return x
     
 

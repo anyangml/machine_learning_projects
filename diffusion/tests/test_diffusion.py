@@ -1,4 +1,4 @@
-from diffusion.diffusion import Diffusion
+from diffusion.diffusion_wrap import Diffusion
 from diffusion.unet import UNetWithTime
 import torch
 

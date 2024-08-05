@@ -15,9 +15,10 @@ class Diffusion(nn.Module):
         self.alpha_bar = torch.cumprod(self.alpha, dim=0)
 
     def forward(self, x0: torch.Tensor):
-        noise = torch.randn_like(x0,device=DEVICE)
-        t = torch.randint(0, self.timesteps, (1,),device=DEVICE).long()
-        x_t = x0 * torch.sqrt(self.alpha_bar[t]) + noise * torch.sqrt(1 - self.alpha_bar[t])
+
+        noise = torch.randn_like(x0)
+        t = torch.randint(0, self.timesteps, (noise.shape[0],)).long()
+        x_t = x0 * torch.sqrt(self.alpha_bar[t].view(-1,1,1,1)) + noise * torch.sqrt(1 - self.alpha_bar[t].view(-1,1,1,1))
         pred_noise = self.model(x_t, t)
         return F.mse_loss(noise, pred_noise)
     
