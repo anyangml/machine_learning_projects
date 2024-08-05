@@ -11,17 +11,11 @@ DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 
 class Trainer:
     def __init__(self) -> None:
-<<<<<<< HEAD
         torch.manual_seed(412)
         self.model = Diffusion(UNetWithTime()).to(DEVICE)
-=======
-        torch.manual_seed(42)
-        self.device = "cuda" if torch.cuda.is_available() else "cpu"
-        self.model = Diffusion(UNetWithTime()).to(self.device)
-        # self.model = Diffusion(UNet(1)).to(self.device)
->>>>>>> 775d500 (fix: activation)
+
         dataset = SwissRollDataset(list(Path(f"{Path(__file__).parents[0]}/data/dummy_data").rglob("*.png")))
-        self.dataloader = DataLoader(dataset, batch_size=4, shuffle=True)
+        self.dataloader = DataLoader(dataset, batch_size=8, shuffle=True)
         self.optimizer = Adam(self.model.parameters(), lr=2e-4)  
 
     def train(self):
